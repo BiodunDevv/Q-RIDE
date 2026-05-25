@@ -187,24 +187,9 @@
     animation-play-state: paused;
   }
 
-  .hero-card-track {
-    animation: hero-card-scroll 32s linear infinite;
-    transform: translate3d(0, 0, 0);
-    width: max-content;
-  }
-
 }
 
 @keyframes qride-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes hero-card-scroll {
   from {
     transform: translateX(0);
   }
