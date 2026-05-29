@@ -58,12 +58,12 @@ function Field({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="text-xs font-semibold tracking-[0.08em] text-white/55">
+      <span className="text-xs font-semibold tracking-[0.08em] text-neutral-500">
         {label}
       </span>
-      <div className="flex border border-white/12 bg-white/5">
+      <div className="flex border border-neutral-200 bg-white">
         {prefix ? (
-          <span className="flex h-10 items-center px-3 text-sm font-semibold text-white/42">
+          <span className="flex h-10 items-center px-3 text-sm font-semibold text-neutral-500">
             {prefix}
           </span>
         ) : null}
@@ -71,7 +71,7 @@ function Field({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="h-10 border-0 bg-transparent text-sm font-semibold text-white placeholder:text-white/28 focus-visible:ring-0"
+          className="h-10 border-0 bg-transparent text-sm font-semibold text-neutral-950 placeholder:text-neutral-400 focus-visible:ring-0"
         />
       </div>
     </label>
@@ -155,49 +155,49 @@ export function DriverApp({
 
   if (screen === "home") {
     return (
-      <div className="pb-20">
-        <div className="bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent)] px-5 pt-5">
+      <div className="bg-neutral-50 pb-20 text-neutral-950">
+        <div className="bg-white px-5 pt-5">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <p className="text-xs font-semibold tracking-[0.1em] text-white/45">
+              <p className="text-xs font-semibold tracking-[0.1em] text-neutral-500">
                 DRIVER DASHBOARD
               </p>
-              <h2 className="text-xl font-semibold text-white">{driver.name}</h2>
+              <h2 className="text-xl font-semibold text-neutral-950">{driver.name}</h2>
             </div>
-            <Badge className="bg-green-500/15 text-green-500">ONLINE</Badge>
+            <Badge className="bg-green-100 text-green-700">ONLINE</Badge>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Card className="border-white/10 bg-white/5 text-white">
+            <Card className="border-neutral-200 bg-white text-neutral-950">
               <CardContent className="p-4">
                 <WalletCards className="mb-3 size-5 text-primary" />
                 <p className="text-xl font-black">{formatMoney(driver.balance)}</p>
-                <p className="mt-1 text-xs text-white/45">Wallet balance</p>
+                <p className="mt-1 text-xs text-neutral-500">Wallet balance</p>
               </CardContent>
             </Card>
-            <Card className="border-white/10 bg-white/5 text-white">
+            <Card className="border-neutral-200 bg-white text-neutral-950">
               <CardContent className="p-4">
-                <CarFront className="mb-3 size-5 text-green-400" />
+                <CarFront className="mb-3 size-5 text-green-600" />
                 <p className="text-xl font-black">{formatMoney(driver.todayEarnings)}</p>
-                <p className="mt-1 text-xs text-white/45">Today&apos;s earnings</p>
+                <p className="mt-1 text-xs text-neutral-500">Today&apos;s earnings</p>
               </CardContent>
             </Card>
           </div>
 
-          <div className="mt-4 border border-dashed border-white/15 bg-black/25 p-4">
-            <p className="text-xs font-semibold tracking-[0.1em] text-white/42">
+          <div className="mt-4 border border-dashed border-neutral-300 bg-neutral-100 p-4">
+            <p className="text-xs font-semibold tracking-[0.1em] text-neutral-500">
               RIDE CODE
             </p>
-            <p className="mt-1 text-2xl font-black tracking-[0.14em] text-white">
+            <p className="mt-1 text-2xl font-black tracking-[0.14em] text-neutral-950">
               {driver.code}
             </p>
-            <p className="mt-1 text-xs text-white/42">Use this for manual passenger payments.</p>
+            <p className="mt-1 text-xs text-neutral-500">Use this for manual passenger payments.</p>
           </div>
         </div>
 
         <div className="space-y-5 px-5 pt-5">
           <div>
-            <p className="mb-3 text-xs font-semibold tracking-[0.1em] text-white/52">
+            <p className="mb-3 text-xs font-semibold tracking-[0.1em] text-neutral-500">
               COLLECT FARE
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -220,7 +220,7 @@ export function DriverApp({
 
           {driver.transactions.length ? (
             <div>
-              <p className="mb-1 text-xs font-semibold tracking-[0.1em] text-white/52">
+              <p className="mb-1 text-xs font-semibold tracking-[0.1em] text-neutral-500">
                 RECENT FARES
               </p>
               {driver.transactions.slice(0, 4).map((transaction) => (
@@ -235,14 +235,14 @@ export function DriverApp({
 
   if (screen === "charge") {
     return (
-      <div className="space-y-5 px-5 py-5 pb-20">
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
         <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
           <ArrowLeft className="size-3.5" />
           Back
         </Button>
         <div>
-          <h2 className="text-xl font-semibold text-white">Charge Passenger</h2>
-          <p className="mt-1 text-sm text-white/45">
+          <h2 className="text-xl font-semibold text-neutral-950">Charge Passenger</h2>
+          <p className="mt-1 text-sm text-neutral-500">
             Enter fare. Passenger pays the fare plus QRide&apos;s ₦10 service fee.
           </p>
         </div>
@@ -269,18 +269,18 @@ export function DriverApp({
         />
 
         {fare > 0 ? (
-          <Card className="border-white/10 bg-white/5 text-white">
+          <Card className="border-neutral-200 bg-white text-neutral-950">
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-white/45">Passenger pays</span>
+                <span className="text-neutral-500">Passenger pays</span>
                 <span>{formatMoney(passengerPays)}</span>
               </div>
               <div className="flex justify-between font-semibold">
                 <span>You receive</span>
-                <span className="text-green-400">{formatMoney(fare)}</span>
+                <span className="text-green-600">{formatMoney(fare)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/45">QRide service</span>
+                <span className="text-neutral-500">QRide service</span>
                 <span>{formatMoney(SERVICE_FEE)}</span>
               </div>
             </CardContent>
@@ -296,30 +296,30 @@ export function DriverApp({
 
   if (screen === "terminal") {
     return (
-      <div className="space-y-5 px-5 py-5 pb-20">
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
         <Button size="sm" variant="secondary" onClick={reset}>
           <ArrowLeft className="size-3.5" />
           Cancel
         </Button>
         <div>
-          <h2 className="text-xl font-semibold text-white">NFC Terminal Active</h2>
-          <p className="mt-1 text-sm text-white/45">
+          <h2 className="text-xl font-semibold text-neutral-950">NFC Terminal Active</h2>
+          <p className="mt-1 text-sm text-neutral-500">
             Passenger holds their QRide card to this device.
           </p>
         </div>
 
-        <div className="flex flex-col items-center gap-5 border border-white/10 bg-black/35 p-6 text-center">
+        <div className="flex flex-col items-center gap-5 border border-neutral-200 bg-white p-6 text-center">
           <NFCRipple active={phase === "waiting" || phase === "tapping"} />
           <div>
             <p className="text-4xl font-black text-primary">{formatMoney(fare)}</p>
-            <p className="mt-1 text-xs text-white/45">
+            <p className="mt-1 text-xs text-neutral-500">
               Passenger pays {formatMoney(passengerPays)} including service fee.
             </p>
           </div>
           {phase === "waiting" ? (
-            <p className="text-sm font-semibold text-white/70">Waiting for card tap...</p>
+            <p className="text-sm font-semibold text-neutral-600">Waiting for card tap...</p>
           ) : (
-            <div className="text-sm font-semibold text-white">
+            <div className="text-sm font-semibold text-neutral-950">
               <Loader2 className="mx-auto mb-2 size-7 animate-spin text-primary" />
               Processing fare
             </div>
@@ -335,24 +335,24 @@ export function DriverApp({
 
   if (screen === "success" && pendingTx) {
     return (
-      <div className="flex min-h-[520px] items-center justify-center px-6 text-center">
+      <div className="flex min-h-[520px] items-center justify-center bg-neutral-50 px-6 text-center">
         <div className="w-full">
           <Check className="mx-auto mb-4 size-12 text-green-500" />
-          <p className="text-lg font-semibold text-white">Fare collected</p>
+          <p className="text-lg font-semibold text-neutral-950">Fare collected</p>
           <p className="mt-2 text-4xl font-black text-primary">
             {formatMoney(pendingTx.amount)}
           </p>
-          <Card className="mt-6 border-white/10 bg-white/5 text-white">
+          <Card className="mt-6 border-neutral-200 bg-white text-neutral-950">
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-white/45">Passenger paid</span>
+                <span className="text-neutral-500">Passenger paid</span>
                 <span>{formatMoney((pendingTx.amount || 0) + SERVICE_FEE)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-white/45">QRide kept</span>
+                <span className="text-neutral-500">QRide kept</span>
                 <span>{formatMoney(SERVICE_FEE)}</span>
               </div>
-              <Separator className="bg-white/10" />
+              <Separator className="bg-neutral-200" />
               <div className="flex justify-between font-semibold">
                 <span>Today&apos;s total</span>
                 <span>{formatMoney(driver.todayEarnings)}</span>
@@ -369,11 +369,11 @@ export function DriverApp({
 
   if (screen === "failed") {
     return (
-      <div className="flex min-h-[520px] items-center justify-center px-6 text-center">
+      <div className="flex min-h-[520px] items-center justify-center bg-neutral-50 px-6 text-center">
         <div className="w-full">
           <X className="mx-auto mb-4 size-12 text-red-400" />
-          <p className="text-lg font-semibold text-white">Payment failed</p>
-          <p className="mt-2 text-sm text-white/45">
+          <p className="text-lg font-semibold text-neutral-950">Payment failed</p>
+          <p className="mt-2 text-sm text-neutral-500">
             Passenger wallet has {formatMoney(user.balance)} and needs {formatMoney(passengerPays)}.
           </p>
           <div className="mt-6 grid gap-2">
@@ -386,27 +386,27 @@ export function DriverApp({
   }
 
   return (
-    <div className="space-y-5 px-5 py-5 pb-20">
+    <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
       <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
         <ArrowLeft className="size-3.5" />
         Back
       </Button>
       <div>
-        <h2 className="text-xl font-semibold text-white">Manual Payment</h2>
-        <p className="mt-1 text-sm text-white/45">
+        <h2 className="text-xl font-semibold text-neutral-950">Manual Payment</h2>
+        <p className="mt-1 text-sm text-neutral-500">
           Show this code so passengers can pay from their QRide app.
         </p>
       </div>
       <div className="border border-primary/35 bg-primary/10 p-6 text-center">
-        <p className="text-xs font-semibold tracking-[0.1em] text-white/45">
+        <p className="text-xs font-semibold tracking-[0.1em] text-neutral-500">
           YOUR RIDE CODE
         </p>
-        <p className="mt-3 text-3xl font-black tracking-[0.16em] text-white">
+        <p className="mt-3 text-3xl font-black tracking-[0.16em] text-neutral-950">
           {driver.code}
         </p>
       </div>
-      <Card className="border-white/10 bg-white/5 text-white">
-        <CardContent className="space-y-4 text-sm text-white/70">
+      <Card className="border-neutral-200 bg-white text-neutral-950">
+        <CardContent className="space-y-4 text-sm text-neutral-600">
           {[
             "Tell the passenger your QRide code.",
             "They enter the code and fare amount in their app.",

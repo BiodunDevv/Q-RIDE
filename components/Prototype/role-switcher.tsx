@@ -10,7 +10,7 @@ type RoleSwitcherProps = {
 
 export function RoleSwitcher({ role, onRoleChange }: RoleSwitcherProps) {
   return (
-    <div className="grid grid-cols-2 gap-1 border-b border-white/8 bg-black/30 p-3">
+    <div className="grid grid-cols-2 gap-1 border-b border-neutral-200 bg-white p-3">
       <Button
         size="sm"
         variant={role === "passenger" ? "default" : "secondary"}

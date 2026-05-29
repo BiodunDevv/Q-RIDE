@@ -7,7 +7,7 @@ export function TransactionRow({ transaction }: { transaction: Transaction }) {
   const Icon = isSend ? ArrowUpRight : ArrowDownLeft;
 
   return (
-    <div className="flex items-center justify-between border-b border-white/8 py-3 last:border-b-0">
+    <div className="flex items-center justify-between border-b border-neutral-200 py-3 last:border-b-0">
       <div className="flex min-w-0 items-center gap-3">
         <div
           className={[
@@ -18,16 +18,17 @@ export function TransactionRow({ transaction }: { transaction: Transaction }) {
           <Icon className="size-4" />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-white">{transaction.label}</p>
-          <p className="mt-0.5 text-xs text-white/42">
+          <p className="truncate text-sm font-medium text-neutral-950">{transaction.label}</p>
+          <p className="mt-0.5 text-xs text-neutral-500">
             {transaction.time} · {transaction.method}
+            {transaction.disputed ? " · Disputed" : ""}
           </p>
         </div>
       </div>
       <p
         className={[
           "shrink-0 text-sm font-semibold",
-          isSend ? "text-red-400" : "text-green-400",
+          isSend ? "text-red-600" : "text-green-600",
         ].join(" ")}
       >
         {isSend ? "-" : "+"}

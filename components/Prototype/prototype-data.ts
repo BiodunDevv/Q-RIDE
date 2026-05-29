@@ -13,7 +13,12 @@ export type Transaction = {
   service?: number;
   method: string;
   time: string;
+  driverName?: string;
+  receiptId?: string;
+  disputed?: boolean;
 };
+
+export type CardStatus = "active" | "blocked" | "replacement" | "issuing";
 
 export type UserState = {
   name: string;
@@ -22,6 +27,8 @@ export type UserState = {
   tier: number;
   transactions: Transaction[];
   card: string;
+  walletFrozen: boolean;
+  cardStatus: CardStatus;
 };
 
 export type DriverState = {
@@ -39,7 +46,32 @@ export const INITIAL_USER: UserState = {
   tier: 1,
   transactions: [],
   card: "6037 9975 9598 3090",
+  walletFrozen: false,
+  cardStatus: "active",
 };
+
+export const HERO_CARDS = [
+  {
+    src: "/card1.svg",
+    name: "Transport Wallet",
+    status: "Linked",
+  },
+  {
+    src: "/card2.svg",
+    name: "Commuter Card",
+    status: "Available",
+  },
+  {
+    src: "/card3.svg",
+    name: "Campus Shuttle",
+    status: "Available",
+  },
+  {
+    src: "/card4.svg",
+    name: "Driver Card",
+    status: "Operator",
+  },
+];
 
 export const INITIAL_DRIVER: DriverState = {
   name: "Musa Ibrahim",

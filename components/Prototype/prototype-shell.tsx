@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { DriverApp } from "@/components/Prototype/driver-app";
+import type { DeviceColor } from "@/components/Prototype/iphone";
 import { LiveBalances } from "@/components/Prototype/live-balances";
 import { PassengerApp } from "@/components/Prototype/passenger-app";
 import { PhoneFrame } from "@/components/Prototype/phone-frame";
@@ -35,6 +36,7 @@ export function PrototypeShell() {
   const [driver, setDriver] = useState<DriverState>(INITIAL_DRIVER);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [showMobileFrame, setShowMobileFrame] = useState(true);
+  const [deviceColor, setDeviceColor] = useState<DeviceColor>("black");
   const toastTimerRef = useRef<number | null>(null);
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
@@ -88,8 +90,8 @@ export function PrototypeShell() {
         </div>
       </div>
 
-      <section id="prototype" className="container-shell py-8 sm:py-10 lg:py-12">
-        <div className="mb-6 max-w-3xl">
+      <section id="prototype" className="container-shell py-4 sm:py-5 lg:py-6">
+        <div className="mb-4 max-w-3xl">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             QRide interactive prototype
           </h1>
@@ -99,25 +101,53 @@ export function PrototypeShell() {
           </p>
         </div>
 
-        {isMobile ? (
-          <div className="mb-4 flex items-center justify-between border border-border bg-card px-4 py-3">
+        <div className="mb-4 grid gap-3 border border-border bg-card px-4 py-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          {isMobile ? (
             <div>
               <p className="text-sm font-medium">Device frame</p>
               <p className="text-xs text-muted-foreground">
                 {showMobileFrame ? "Showing phone shell" : "Using full app view"}
               </p>
             </div>
-            <Switch
-              checked={showMobileFrame}
-              onCheckedChange={setShowMobileFrame}
-              aria-label="Toggle mobile phone frame"
-            />
+          ) : (
+            <div>
+              <p className="text-sm font-medium">Phone preview</p>
+              <p className="text-xs text-muted-foreground">
+                Dark frame with the light QRide app UI.
+              </p>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            {(["black", "graphite"] as DeviceColor[]).map((color) => (
+              <Button
+                key={color}
+                type="button"
+                size="sm"
+                variant={deviceColor === color ? "default" : "outline"}
+                onClick={() => setDeviceColor(color)}
+              >
+                {color}
+              </Button>
+            ))}
+            <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
+              Pro Max
+            </span>
+            {isMobile ? (
+              <Switch
+                checked={showMobileFrame}
+                onCheckedChange={setShowMobileFrame}
+                aria-label="Toggle mobile phone frame"
+              />
+            ) : null}
           </div>
-        ) : null}
+        </div>
 
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,420px)_minmax(260px,320px)] lg:justify-center">
-          <div className="relative">
-            <PhoneFrame showFrameOnMobile={showMobileFrame}>
+        <div className="grid items-start justify-items-center gap-6 lg:min-h-[calc(100vh-14rem)] lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] lg:items-center">
+          <div className="relative flex w-full justify-center overflow-visible">
+            <PhoneFrame
+              showFrameOnMobile={showMobileFrame}
+              deviceColor={deviceColor}
+            >
               <RoleSwitcher role={role} onRoleChange={setRole} />
               {role === "passenger" ? (
                 <PassengerApp

@@ -1,10 +1,24 @@
 "use client";
 
-import { ArrowLeft, Check, CreditCard, Hash, Loader2, Plus, Radio } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  Ban,
+  Check,
+  CreditCard,
+  FileText,
+  Hash,
+  Loader2,
+  Plus,
+  Radio,
+  ShieldAlert,
+  Snowflake,
+} from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 import { NFCRipple } from "@/components/Prototype/nfc-ripple";
+import { CardGallery } from "@/components/Prototype/card-gallery";
 import {
   DRIVER_CODE,
   SERVICE_FEE,
@@ -26,7 +40,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-type PassengerScreen = "home" | "nfc" | "manual" | "processing" | "success" | "topup";
+type PassengerScreen =
+  | "home"
+  | "nfc"
+  | "manual"
+  | "processing"
+  | "success"
+  | "topup"
+  | "cards"
+  | "receipt";
 type NfcPhase = "idle" | "ready" | "tapping" | "done";
 
 type PassengerAppProps = {
@@ -52,12 +74,12 @@ function Field({
 }) {
   return (
     <label className="block space-y-2">
-      <span className="text-xs font-semibold tracking-[0.08em] text-white/55">
+      <span className="text-xs font-semibold tracking-[0.08em] text-neutral-500">
         {label}
       </span>
-      <div className="flex border border-white/12 bg-white/5">
+      <div className="flex border border-neutral-200 bg-white">
         {prefix ? (
-          <span className="flex h-10 items-center px-3 text-sm font-semibold text-white/42">
+          <span className="flex h-10 items-center px-3 text-sm font-semibold text-neutral-500">
             {prefix}
           </span>
         ) : null}
@@ -65,7 +87,7 @@ function Field({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
-          className="h-10 border-0 bg-transparent text-sm font-semibold text-white placeholder:text-white/28 focus-visible:ring-0"
+          className="h-10 border-0 bg-transparent text-sm font-semibold text-neutral-950 placeholder:text-neutral-400 focus-visible:ring-0"
         />
       </div>
     </label>
@@ -113,6 +135,8 @@ export function PassengerApp({
       service: SERVICE_FEE,
       method,
       time: getTime(),
+      driverName: driver.name,
+      receiptId: `QR-${Date.now().toString().slice(-6)}`,
     };
     const driverTransaction: Transaction = {
       id: transaction.id + 1,
@@ -140,6 +164,11 @@ export function PassengerApp({
   };
 
   const simulateNfc = async () => {
+    if (user.walletFrozen || user.cardStatus !== "active") {
+      showToast("Wallet or card is not active. Check Card Management.", "error");
+      return;
+    }
+
     setNfcPhase("tapping");
     await sleep(1100);
 
@@ -159,6 +188,11 @@ export function PassengerApp({
 
   const simulateManual = async () => {
     const fare = Number(manualAmount);
+
+    if (user.walletFrozen) {
+      showToast("Wallet is frozen. Unfreeze it in Card Management.", "error");
+      return;
+    }
 
     if (!isDriverCodeValid(rideCode)) {
       showToast("Invalid ride code. Use MSAIBR-442 or 442.", "error");
@@ -183,18 +217,18 @@ export function PassengerApp({
 
   if (screen === "home") {
     return (
-      <div className="pb-20">
-        <div className="bg-[linear-gradient(180deg,rgba(159,7,18,0.2),transparent)] px-5 pt-5">
+      <div className="bg-neutral-50 pb-20 text-neutral-950">
+        <div className="bg-white px-5 pt-5">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <p className="text-xs font-semibold tracking-[0.1em] text-white/45">
+              <p className="text-xs font-semibold tracking-[0.1em] text-neutral-500">
                 GOOD MORNING
               </p>
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-neutral-950">
                 {user.name.split(" ")[0]}
               </h2>
             </div>
-            <Badge className="bg-green-500/15 text-green-500">TIER {user.tier}</Badge>
+            <Badge className="bg-green-100 text-green-700">TIER {user.tier}</Badge>
           </div>
 
           <div className="bg-primary p-5 text-primary-foreground shadow-[0_18px_45px_rgba(159,7,18,0.25)]">
@@ -213,7 +247,7 @@ export function PassengerApp({
 
         <div className="space-y-5 px-5 pt-5">
           <div>
-            <p className="mb-3 text-xs font-semibold tracking-[0.1em] text-white/52">
+            <p className="mb-3 text-xs font-semibold tracking-[0.1em] text-neutral-500">
               PAY YOUR RIDE
             </p>
             <div className="grid grid-cols-2 gap-3">
@@ -236,25 +270,52 @@ export function PassengerApp({
 
           <button
             onClick={() => setScreen("topup")}
-            className="flex w-full items-center gap-3 border border-white/10 bg-white/5 p-4 text-left"
+            className="flex w-full items-center gap-3 border border-neutral-200 bg-white p-4 text-left"
           >
-            <div className="flex size-10 items-center justify-center bg-white/8 text-white">
+            <div className="flex size-10 items-center justify-center bg-neutral-100 text-neutral-950">
               <CreditCard className="size-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-white">Top Up Wallet</p>
-              <p className="text-xs text-white/45">Current balance: {formatMoney(user.balance)}</p>
+              <p className="text-sm font-semibold text-neutral-950">Top Up Wallet</p>
+              <p className="text-xs text-neutral-500">Current balance: {formatMoney(user.balance)}</p>
             </div>
-            <Plus className="size-4 text-white/45" />
+            <Plus className="size-4 text-neutral-500" />
+          </button>
+
+          <button
+            onClick={() => setScreen("cards")}
+            className="flex w-full items-center gap-3 border border-neutral-200 bg-white p-4 text-left"
+          >
+            <div className="flex size-10 items-center justify-center bg-primary/10 text-primary">
+              <BadgeCheck className="size-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-neutral-950">Card Management</p>
+              <p className="text-xs text-neutral-500">
+                {user.walletFrozen ? "Wallet frozen" : `Card status: ${user.cardStatus}`}
+              </p>
+            </div>
           </button>
 
           {user.transactions.length ? (
             <div>
-              <p className="mb-1 text-xs font-semibold tracking-[0.1em] text-white/52">
+              <p className="mb-1 text-xs font-semibold tracking-[0.1em] text-neutral-500">
                 RECENT
               </p>
               {user.transactions.slice(0, 4).map((transaction) => (
-                <TransactionRow key={transaction.id} transaction={transaction} />
+                <button
+                  key={transaction.id}
+                  type="button"
+                  onClick={() => {
+                    if (transaction.type === "send" && transaction.receiptId) {
+                      setPendingTx(transaction);
+                      setScreen("receipt");
+                    }
+                  }}
+                  className="block w-full text-left"
+                >
+                  <TransactionRow transaction={transaction} />
+                </button>
               ))}
             </div>
           ) : null}
@@ -265,29 +326,29 @@ export function PassengerApp({
 
   if (screen === "nfc") {
     return (
-      <div className="space-y-5 px-5 py-5 pb-20">
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
         <Button size="sm" variant="secondary" onClick={reset}>
           <ArrowLeft className="size-3.5" />
           Back
         </Button>
         <div>
-          <h2 className="text-xl font-semibold text-white">Tap to Pay</h2>
-          <p className="mt-1 text-sm text-white/45">
+          <h2 className="text-xl font-semibold text-neutral-950">Tap to Pay</h2>
+          <p className="mt-1 text-sm text-neutral-500">
             Driver activates terminal, you hold your QRide card.
           </p>
         </div>
 
-        <Card className="border-white/10 bg-white/5 text-white">
+        <Card className="border-neutral-200 bg-white text-neutral-950">
           <CardContent className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-white/45">Ride fare</span>
+              <span className="text-neutral-500">Ride fare</span>
               <span>{formatMoney(rideFare)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-white/45">Service charge</span>
+              <span className="text-neutral-500">Service charge</span>
               <span>+{formatMoney(SERVICE_FEE)}</span>
             </div>
-            <Separator className="bg-white/10" />
+            <Separator className="bg-neutral-200" />
             <div className="flex justify-between text-sm font-semibold">
               <span>You pay</span>
               <span className="text-primary">{formatMoney(totalPay)}</span>
@@ -305,14 +366,14 @@ export function PassengerApp({
           />
         ) : null}
 
-        <div className="flex flex-col items-center gap-5 border border-white/10 bg-black/30 p-6">
+        <div className="flex flex-col items-center gap-5 border border-neutral-200 bg-white p-6">
           <NFCRipple active={nfcPhase === "ready" || nfcPhase === "tapping"} success={nfcResult === "success"} fail={nfcResult === "fail"} />
 
           {nfcPhase === "idle" ? (
             <>
               <div className="text-center">
-                <p className="text-sm font-semibold text-white">Ready to tap</p>
-                <p className="mt-1 text-xs text-white/42">Activate the reader, then place your card.</p>
+                <p className="text-sm font-semibold text-neutral-950">Ready to tap</p>
+                <p className="mt-1 text-xs text-neutral-500">Activate the reader, then place your card.</p>
               </div>
               <QRideCard />
               <Button onClick={() => setNfcPhase("ready")} className="w-full">
@@ -332,7 +393,7 @@ export function PassengerApp({
           {nfcPhase === "tapping" ? (
             <div className="text-center">
               <Loader2 className="mx-auto mb-3 size-8 animate-spin text-primary" />
-              <p className="text-sm font-semibold text-white">Reading card...</p>
+              <p className="text-sm font-semibold text-neutral-950">Reading card...</p>
             </div>
           ) : null}
 
@@ -340,18 +401,24 @@ export function PassengerApp({
             <div className="w-full text-center">
               <Check className="mx-auto mb-3 size-10 text-green-500" />
               <p className="text-sm font-semibold text-green-500">Payment successful</p>
-              <p className="mt-2 text-3xl font-black text-white">{formatMoney(pendingTx.amount)}</p>
-              <p className="mt-1 text-xs text-white/45">
+              <p className="mt-2 text-3xl font-black text-neutral-950">{formatMoney(pendingTx.amount)}</p>
+              <p className="mt-1 text-xs text-neutral-500">
                 Driver receives {formatMoney(pendingTx.rideAmount ?? 0)} · QRide fee {formatMoney(SERVICE_FEE)}
               </p>
-              <Button onClick={reset} className="mt-5 w-full">Done</Button>
+              <div className="mt-5 grid gap-2">
+                <Button onClick={() => setScreen("receipt")} className="w-full">
+                  <FileText className="size-4" />
+                  View receipt
+                </Button>
+                <Button onClick={reset} variant="outline" className="w-full">Done</Button>
+              </div>
             </div>
           ) : null}
 
           {nfcPhase === "done" && nfcResult === "fail" ? (
             <div className="w-full text-center">
               <p className="text-sm font-semibold text-red-400">Payment failed</p>
-              <p className="mt-2 text-xs text-white/45">{failReason}</p>
+              <p className="mt-2 text-xs text-neutral-500">{failReason}</p>
               <div className="mt-5 grid gap-2">
                 <Button onClick={() => { setNfcPhase("ready"); setNfcResult(null); setFailReason(""); }}>
                   Try Again
@@ -370,24 +437,24 @@ export function PassengerApp({
   if (screen === "manual") {
     const fare = Number(manualAmount) || 0;
     return (
-      <div className="space-y-5 px-5 py-5 pb-20">
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
         <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
           <ArrowLeft className="size-3.5" />
           Back
         </Button>
         <div>
-          <h2 className="text-xl font-semibold text-white">Pay by Ride Code</h2>
-          <p className="mt-1 text-sm text-white/45">Test code: {DRIVER_CODE} or 442.</p>
+          <h2 className="text-xl font-semibold text-neutral-950">Pay by Ride Code</h2>
+          <p className="mt-1 text-sm text-neutral-500">Test code: {DRIVER_CODE} or 442.</p>
         </div>
         <Field label="DRIVER RIDE CODE" value={rideCode} onChange={(value) => setRideCode(value.toUpperCase())} placeholder="MSAIBR-442" />
         <Field label="AMOUNT" value={manualAmount} prefix="₦" onChange={(value) => setManualAmount(numericValue(value))} placeholder="200" />
         {fare > 0 ? (
-          <Card className="border-white/10 bg-white/5 text-white">
+          <Card className="border-neutral-200 bg-white text-neutral-950">
             <CardContent className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-white/45">Ride fare</span><span>{formatMoney(fare)}</span></div>
-              <div className="flex justify-between"><span className="text-white/45">Service charge</span><span>{formatMoney(SERVICE_FEE)}</span></div>
+              <div className="flex justify-between"><span className="text-neutral-500">Ride fare</span><span>{formatMoney(fare)}</span></div>
+              <div className="flex justify-between"><span className="text-neutral-500">Service charge</span><span>{formatMoney(SERVICE_FEE)}</span></div>
               <div className="flex justify-between font-semibold"><span>Total deducted</span><span>{formatMoney(fare + SERVICE_FEE)}</span></div>
-              <div className="flex justify-between text-green-400"><span>Driver receives</span><span>{formatMoney(fare)}</span></div>
+              <div className="flex justify-between text-green-600"><span>Driver receives</span><span>{formatMoney(fare)}</span></div>
             </CardContent>
           </Card>
         ) : null}
@@ -401,8 +468,8 @@ export function PassengerApp({
       <div className="flex min-h-[520px] items-center justify-center px-8 text-center">
         <div>
           <Loader2 className="mx-auto mb-4 size-10 animate-spin text-primary" />
-          <p className="text-lg font-semibold text-white">Processing payment...</p>
-          <p className="mt-2 text-sm text-white/45">Verifying ride code and crediting driver.</p>
+          <p className="text-lg font-semibold text-neutral-950">Processing payment...</p>
+          <p className="mt-2 text-sm text-neutral-500">Verifying ride code and crediting driver.</p>
         </div>
       </div>
     );
@@ -410,33 +477,171 @@ export function PassengerApp({
 
   if (screen === "success" && pendingTx) {
     return (
-      <div className="flex min-h-[520px] items-center justify-center px-6 text-center">
+      <div className="flex min-h-[520px] items-center justify-center bg-neutral-50 px-6 text-center">
         <div className="w-full">
           <Check className="mx-auto mb-4 size-12 text-green-500" />
-          <p className="text-lg font-semibold text-white">Payment successful</p>
+          <p className="text-lg font-semibold text-neutral-950">Payment successful</p>
           <p className="mt-2 text-4xl font-black text-primary">{formatMoney(pendingTx.amount)}</p>
-          <Card className="mt-6 border-white/10 bg-white/5 text-white">
+          <Card className="mt-6 border-neutral-200 bg-white text-neutral-950">
             <CardContent className="space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-white/45">Driver received</span><span className="text-green-400">{formatMoney(pendingTx.rideAmount ?? 0)}</span></div>
-              <div className="flex justify-between"><span className="text-white/45">QRide fee</span><span>{formatMoney(SERVICE_FEE)}</span></div>
-              <div className="flex justify-between"><span className="text-white/45">New balance</span><span>{formatMoney(user.balance)}</span></div>
+              <div className="flex justify-between"><span className="text-neutral-500">Driver received</span><span className="text-green-600">{formatMoney(pendingTx.rideAmount ?? 0)}</span></div>
+              <div className="flex justify-between"><span className="text-neutral-500">QRide fee</span><span>{formatMoney(SERVICE_FEE)}</span></div>
+              <div className="flex justify-between"><span className="text-neutral-500">New balance</span><span>{formatMoney(user.balance)}</span></div>
             </CardContent>
           </Card>
-          <Button onClick={reset} className="mt-6 w-full">Back to Home</Button>
+          <div className="mt-6 grid gap-2">
+            <Button onClick={() => setScreen("receipt")} className="w-full">
+              <FileText className="size-4" />
+              View receipt
+            </Button>
+            <Button onClick={reset} variant="outline" className="w-full">Back to Home</Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === "receipt" && pendingTx) {
+    return (
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
+        <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
+          <ArrowLeft className="size-3.5" />
+          Back
+        </Button>
+        <div>
+          <h2 className="text-xl font-semibold">Ride Receipt</h2>
+          <p className="mt-1 text-sm text-neutral-500">{pendingTx.receiptId}</p>
+        </div>
+        <Card className="border-neutral-200 bg-white">
+          <CardContent className="space-y-3 text-sm">
+            {[
+              ["Driver", pendingTx.driverName ?? driver.name],
+              ["Time", pendingTx.time],
+              ["Method", pendingTx.method],
+              ["Fare", formatMoney(pendingTx.rideAmount ?? 0)],
+              ["Service fee", formatMoney(pendingTx.service ?? SERVICE_FEE)],
+              ["Total paid", formatMoney(pendingTx.amount)],
+            ].map(([label, value]) => (
+              <div key={label} className="flex justify-between gap-4">
+                <span className="text-neutral-500">{label}</span>
+                <span className="text-right font-medium text-neutral-950">{value}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        {pendingTx.disputed ? (
+          <div className="border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            Dispute submitted. Support will review this receipt.
+          </div>
+        ) : null}
+        <Button
+          variant="outline"
+          onClick={() => {
+            setPendingTx((current) => current ? { ...current, disputed: true } : current);
+            setUser((current) => ({
+              ...current,
+              transactions: current.transactions.map((transaction) =>
+                transaction.id === pendingTx.id
+                  ? { ...transaction, disputed: true }
+                  : transaction
+              ),
+            }));
+            showToast("Dispute submitted for review.", "success");
+          }}
+          className="w-full"
+        >
+          <ShieldAlert className="size-4" />
+          Report a dispute
+        </Button>
+      </div>
+    );
+  }
+
+  if (screen === "cards") {
+    return (
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
+        <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
+          <ArrowLeft className="size-3.5" />
+          Back
+        </Button>
+        <div>
+          <h2 className="text-xl font-semibold">Card Management</h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Manage linked QRide cards, wallet safety, and issuance status.
+          </p>
+        </div>
+
+        <Card className="border-neutral-200 bg-white">
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold">Linked card</p>
+                <p className="text-xs text-neutral-500">{user.card}</p>
+              </div>
+              <Badge className="bg-primary text-primary-foreground">{user.cardStatus}</Badge>
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold">Wallet safety</p>
+                <p className="text-xs text-neutral-500">
+                  {user.walletFrozen ? "Payments are paused" : "Payments are enabled"}
+                </p>
+              </div>
+              <Badge variant="outline">{user.walletFrozen ? "Frozen" : "Live"}</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        <CardGallery cardStatus={user.cardStatus} />
+
+        <div className="grid gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setUser((current) => ({ ...current, walletFrozen: !current.walletFrozen }));
+              showToast(user.walletFrozen ? "Wallet unfrozen." : "Wallet frozen.", "success");
+            }}
+          >
+            <Snowflake className="size-4" />
+            {user.walletFrozen ? "Unfreeze wallet" : "Freeze wallet"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setUser((current) => ({
+                ...current,
+                cardStatus: current.cardStatus === "blocked" ? "active" : "blocked",
+              }));
+              showToast(user.cardStatus === "blocked" ? "Card reactivated." : "Card blocked.", "success");
+            }}
+          >
+            <Ban className="size-4" />
+            {user.cardStatus === "blocked" ? "Reactivate card" : "Block card"}
+          </Button>
+          <Button
+            onClick={() => {
+              setUser((current) => ({ ...current, cardStatus: "replacement" }));
+              showToast("Replacement card request created.", "success");
+            }}
+          >
+            <CreditCard className="size-4" />
+            Replace card
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5 px-5 py-5 pb-20">
+    <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
       <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
         <ArrowLeft className="size-3.5" />
         Back
       </Button>
       <div>
-        <h2 className="text-xl font-semibold text-white">Top Up Wallet</h2>
-        <p className="mt-1 text-sm text-white/45">Add funds to your QRide wallet.</p>
+        <h2 className="text-xl font-semibold text-neutral-950">Top Up Wallet</h2>
+        <p className="mt-1 text-sm text-neutral-500">Add funds to your QRide wallet.</p>
       </div>
       <div className="grid grid-cols-3 gap-2">
         {[500, 1000, 2000, 5000, 10000, 20000].map((amount) => (
