@@ -36,7 +36,7 @@ export function LiveBalances({ user, driver, qrideEarned }: LiveBalancesProps) {
   ];
 
   return (
-    <aside className="grid gap-3 lg:w-[280px]">
+    <aside className="grid gap-3">
       <Card>
         <CardHeader>
           <CardTitle>Live balances</CardTitle>

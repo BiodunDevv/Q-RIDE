@@ -4,6 +4,14 @@ export const DRIVER_CODE = "MSAIBR-442";
 export type Role = "passenger" | "driver";
 export type ToastType = "success" | "error" | "info";
 
+export type Notification = {
+  id: number;
+  title: string;
+  message: string;
+  time: string;
+  type: "payment" | "warning" | "card" | "support" | "driver";
+};
+
 export type Transaction = {
   id: number;
   type: "send" | "receive";

@@ -12,7 +12,9 @@ import { PhoneFrame } from "@/components/Prototype/phone-frame";
 import {
   INITIAL_DRIVER,
   INITIAL_USER,
+  getTime,
   type DriverState,
+  type Notification,
   type Role,
   type ToastType,
   type UserState,
@@ -35,6 +37,7 @@ export function PrototypeShell() {
   const [user, setUser] = useState<UserState>(INITIAL_USER);
   const [driver, setDriver] = useState<DriverState>(INITIAL_DRIVER);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showMobileFrame, setShowMobileFrame] = useState(true);
   const [deviceColor, setDeviceColor] = useState<DeviceColor>("black");
   const toastTimerRef = useRef<number | null>(null);
@@ -51,6 +54,20 @@ export function PrototypeShell() {
       toastTimerRef.current = null;
     }, 2800);
   }, []);
+
+  const pushNotification = useCallback(
+    (notification: Omit<Notification, "id" | "time">) => {
+      setNotifications((current) => [
+        {
+          ...notification,
+          id: Date.now(),
+          time: getTime(),
+        },
+        ...current,
+      ].slice(0, 20));
+    },
+    []
+  );
 
   useEffect(() => {
     return () => {
@@ -156,6 +173,8 @@ export function PrototypeShell() {
                   setUser={setUser}
                   setDriver={setDriver}
                   showToast={showToast}
+                  pushNotification={pushNotification}
+                  notifications={notifications}
                 />
               ) : (
                 <DriverApp
@@ -164,6 +183,8 @@ export function PrototypeShell() {
                   setUser={setUser}
                   setDriver={setDriver}
                   showToast={showToast}
+                  pushNotification={pushNotification}
+                  notifications={notifications}
                 />
               )}
             </PhoneFrame>

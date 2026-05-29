@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   BadgeCheck,
   Ban,
+  Bell,
   Check,
   CreditCard,
   FileText,
@@ -19,6 +20,7 @@ import { useState } from "react";
 
 import { NFCRipple } from "@/components/Prototype/nfc-ripple";
 import { CardGallery } from "@/components/Prototype/card-gallery";
+import { InAppNotifications } from "@/components/Prototype/in-app-notifications";
 import {
   DRIVER_CODE,
   SERVICE_FEE,
@@ -29,6 +31,7 @@ import {
   numericValue,
   sleep,
   type DriverState,
+  type Notification,
   type ToastType,
   type Transaction,
   type UserState,
@@ -49,7 +52,8 @@ type PassengerScreen =
   | "success"
   | "topup"
   | "cards"
-  | "receipt";
+  | "receipt"
+  | "notifications";
 type NfcPhase = "idle" | "ready" | "tapping" | "done";
 
 type PassengerAppProps = {
@@ -58,6 +62,8 @@ type PassengerAppProps = {
   setUser: Dispatch<SetStateAction<UserState>>;
   setDriver: Dispatch<SetStateAction<DriverState>>;
   showToast: (message: string, type?: ToastType) => void;
+  pushNotification: (notification: Omit<Notification, "id" | "time">) => void;
+  notifications: Notification[];
 };
 
 const quickRideAmounts = [100, 150, 200, 250, 300, 500];
@@ -103,6 +109,8 @@ export function PassengerApp({
   setUser,
   setDriver,
   showToast,
+  pushNotification,
+  notifications,
 }: PassengerAppProps) {
   const [screen, setScreen] = useState<PassengerScreen>("home");
   const [rideAmount, setRideAmount] = useState("200");
@@ -151,6 +159,8 @@ export function PassengerApp({
       time: transaction.time,
     };
 
+    const nextBalance = user.balance - total;
+
     setUser((current) => ({
       ...current,
       balance: current.balance - total,
@@ -163,6 +173,20 @@ export function PassengerApp({
       transactions: [driverTransaction, ...current.transactions].slice(0, 20),
     }));
     setPendingTx(transaction);
+    pushNotification({
+      type: "payment",
+      title: "Ride payment successful",
+      message: `${formatMoney(total)} paid to ${driver.name}. Receipt ${transaction.receiptId}.`,
+    });
+
+    if (nextBalance <= 1000) {
+      pushNotification({
+        type: "warning",
+        title: "Low wallet balance",
+        message: `Your QRide wallet is now ${formatMoney(nextBalance)}. Top up before your next ride.`,
+      });
+    }
+
     return transaction;
   };
 
@@ -231,7 +255,24 @@ export function PassengerApp({
                 {user.name.split(" ")[0]}
               </h2>
             </div>
-            <Badge className="bg-green-100 text-green-700">TIER {user.tier}</Badge>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                onClick={() => setScreen("notifications")}
+                className="relative size-8"
+                aria-label="Open notifications"
+              >
+                <Bell className="size-4" />
+                {notifications.length ? (
+                  <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center bg-primary text-[10px] font-semibold text-primary-foreground">
+                    {Math.min(notifications.length, 9)}
+                  </span>
+                ) : null}
+              </Button>
+              <Badge className="bg-green-100 text-green-700">TIER {user.tier}</Badge>
+            </div>
           </div>
 
           <div className="bg-primary p-5 text-primary-foreground shadow-[0_18px_45px_rgba(159,7,18,0.25)]">
@@ -571,12 +612,35 @@ export function PassengerApp({
               ),
             }));
             showToast("Dispute submitted for review.", "success");
+            pushNotification({
+              type: "support",
+              title: "Dispute update",
+              message: `Receipt ${pendingTx.receiptId} has been submitted for support review.`,
+            });
           }}
           className="w-full"
         >
           <ShieldAlert className="size-4" />
           Report a dispute
         </Button>
+      </div>
+    );
+  }
+
+  if (screen === "notifications") {
+    return (
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
+        <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
+          <ArrowLeft className="size-3.5" />
+          Back
+        </Button>
+        <div>
+          <h2 className="text-xl font-semibold">Notifications</h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Payment, card, support, and wallet alerts.
+          </p>
+        </div>
+        <InAppNotifications notifications={notifications} />
       </div>
     );
   }
@@ -625,6 +689,13 @@ export function PassengerApp({
             onClick={() => {
               setUser((current) => ({ ...current, walletFrozen: !current.walletFrozen }));
               showToast(user.walletFrozen ? "Wallet unfrozen." : "Wallet frozen.", "success");
+              pushNotification({
+                type: "card",
+                title: user.walletFrozen ? "Wallet unfrozen" : "Wallet frozen",
+                message: user.walletFrozen
+                  ? "Your QRide wallet can now make payments."
+                  : "Your QRide wallet has been frozen for safety.",
+              });
             }}
           >
             <Snowflake className="size-4" />
@@ -638,6 +709,13 @@ export function PassengerApp({
                 cardStatus: current.cardStatus === "blocked" ? "active" : "blocked",
               }));
               showToast(user.cardStatus === "blocked" ? "Card reactivated." : "Card blocked.", "success");
+              pushNotification({
+                type: "card",
+                title: user.cardStatus === "blocked" ? "Card reactivated" : "Card blocked",
+                message: user.cardStatus === "blocked"
+                  ? "Your linked QRide card is active again."
+                  : "Your linked QRide card can no longer make payments.",
+              });
             }}
           >
             <Ban className="size-4" />
@@ -647,6 +725,11 @@ export function PassengerApp({
             onClick={() => {
               setUser((current) => ({ ...current, cardStatus: "replacement" }));
               showToast("Replacement card request created.", "success");
+              pushNotification({
+                type: "card",
+                title: "Replacement card ready soon",
+                message: "Your replacement request is in progress. You will be alerted when the card is ready.",
+              });
             }}
           >
             <CreditCard className="size-4" />

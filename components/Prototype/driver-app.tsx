@@ -2,6 +2,7 @@
 
 import {
   ArrowLeft,
+  Bell,
   CarFront,
   Check,
   Hash,
@@ -14,6 +15,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 import { NFCRipple } from "@/components/Prototype/nfc-ripple";
+import { InAppNotifications } from "@/components/Prototype/in-app-notifications";
 import {
   SERVICE_FEE,
   formatMoney,
@@ -21,6 +23,7 @@ import {
   numericValue,
   sleep,
   type DriverState,
+  type Notification,
   type ToastType,
   type Transaction,
   type UserState,
@@ -32,7 +35,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-type DriverScreen = "home" | "charge" | "terminal" | "success" | "failed" | "manual";
+type DriverScreen = "home" | "charge" | "terminal" | "success" | "failed" | "manual" | "notifications";
 type TerminalPhase = "waiting" | "tapping";
 
 type DriverAppProps = {
@@ -41,6 +44,8 @@ type DriverAppProps = {
   setUser: Dispatch<SetStateAction<UserState>>;
   setDriver: Dispatch<SetStateAction<DriverState>>;
   showToast: (message: string, type?: ToastType) => void;
+  pushNotification: (notification: Omit<Notification, "id" | "time">) => void;
+  notifications: Notification[];
 };
 
 function Field({
@@ -84,6 +89,8 @@ export function DriverApp({
   setUser,
   setDriver,
   showToast,
+  pushNotification,
+  notifications,
 }: DriverAppProps) {
   const [screen, setScreen] = useState<DriverScreen>("home");
   const [chargeAmount, setChargeAmount] = useState("");
@@ -150,6 +157,11 @@ export function DriverApp({
       transactions: [passengerTransaction, ...current.transactions].slice(0, 20),
     }));
     setPendingTx(driverTransaction);
+    pushNotification({
+      type: "driver",
+      title: "Driver settlement received",
+      message: `${formatMoney(fare)} credited to ${driver.name}'s driver wallet.`,
+    });
     setScreen("success");
   };
 
@@ -164,7 +176,24 @@ export function DriverApp({
               </p>
               <h2 className="text-xl font-semibold text-neutral-950">{driver.name}</h2>
             </div>
-            <Badge className="bg-green-100 text-green-700">ONLINE</Badge>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                onClick={() => setScreen("notifications")}
+                className="relative size-8"
+                aria-label="Open notifications"
+              >
+                <Bell className="size-4" />
+                {notifications.length ? (
+                  <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center bg-primary text-[10px] font-semibold text-primary-foreground">
+                    {Math.min(notifications.length, 9)}
+                  </span>
+                ) : null}
+              </Button>
+              <Badge className="bg-green-100 text-green-700">ONLINE</Badge>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -229,6 +258,24 @@ export function DriverApp({
             </div>
           ) : null}
         </div>
+      </div>
+    );
+  }
+
+  if (screen === "notifications") {
+    return (
+      <div className="space-y-5 bg-neutral-50 px-5 py-5 pb-20 text-neutral-950">
+        <Button size="sm" variant="secondary" onClick={() => setScreen("home")}>
+          <ArrowLeft className="size-3.5" />
+          Back
+        </Button>
+        <div>
+          <h2 className="text-xl font-semibold">Notifications</h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            Settlement, fare, card, and support alerts.
+          </p>
+        </div>
+        <InAppNotifications notifications={notifications} />
       </div>
     );
   }
