@@ -396,6 +396,9 @@ export function HeroSection() {
             </a>
           </Button>
           <Button asChild size="lg" variant="outline">
+            <a href="/prototype">View prototype</a>
+          </Button>
+          <Button asChild size="lg" variant="ghost">
             <a href="#how-it-works">See how it works</a>
           </Button>
         </div>

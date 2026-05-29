@@ -14,6 +14,7 @@ import {
 export const navLinks = [
   { href: "#how-it-works", label: "How it works" },
   { href: "#solution", label: "Solution" },
+  { href: "/prototype", label: "Prototype" },
   { href: "#waitlist", label: "Waitlist" },
 ];
 

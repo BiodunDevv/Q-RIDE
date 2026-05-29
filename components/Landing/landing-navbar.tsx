@@ -46,7 +46,7 @@ export function LandingNavbar() {
 
         <div className="hidden items-center gap-2 md:flex">
           <Button asChild size="sm" variant="ghost">
-            <a href="#how-it-works">How it works</a>
+            <a href="/prototype">View prototype</a>
           </Button>
           <Button asChild size="sm">
             <a href="#waitlist">
