@@ -20,6 +20,8 @@ import { PrototypeToast } from "@/components/Prototype/prototype-toast";
 import { RoleSwitcher } from "@/components/Prototype/role-switcher";
 import { Logo } from "@/components/Landing/logo";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type ToastState = {
   message: string;
@@ -27,10 +29,12 @@ type ToastState = {
 };
 
 export function PrototypeShell() {
+  const isMobile = useIsMobile();
   const [role, setRole] = useState<Role>("passenger");
   const [user, setUser] = useState<UserState>(INITIAL_USER);
   const [driver, setDriver] = useState<DriverState>(INITIAL_DRIVER);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [showMobileFrame, setShowMobileFrame] = useState(true);
   const toastTimerRef = useRef<number | null>(null);
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
@@ -95,9 +99,25 @@ export function PrototypeShell() {
           </p>
         </div>
 
+        {isMobile ? (
+          <div className="mb-4 flex items-center justify-between border border-border bg-card px-4 py-3">
+            <div>
+              <p className="text-sm font-medium">Device frame</p>
+              <p className="text-xs text-muted-foreground">
+                {showMobileFrame ? "Showing phone shell" : "Using full app view"}
+              </p>
+            </div>
+            <Switch
+              checked={showMobileFrame}
+              onCheckedChange={setShowMobileFrame}
+              aria-label="Toggle mobile phone frame"
+            />
+          </div>
+        ) : null}
+
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,420px)_minmax(260px,320px)] lg:justify-center">
           <div className="relative">
-            <PhoneFrame>
+            <PhoneFrame showFrameOnMobile={showMobileFrame}>
               <RoleSwitcher role={role} onRoleChange={setRole} />
               {role === "passenger" ? (
                 <PassengerApp

@@ -1,7 +1,13 @@
 "use client";
 
 import type { CSSProperties, PointerEvent } from "react";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
@@ -133,7 +139,9 @@ function HeroCard({
       </div>
       <div className="mt-5 px-1">
         <p className="text-sm font-medium text-foreground">{card.name}</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">Tap to learn more</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          Tap to learn more
+        </p>
       </div>
     </button>
   );
@@ -326,7 +334,10 @@ export function HeroSection() {
     if (!draggingRef.current) return;
 
     const deltaX = event.clientX - dragStartXRef.current;
-    dragDistanceRef.current = Math.max(dragDistanceRef.current, Math.abs(deltaX));
+    dragDistanceRef.current = Math.max(
+      dragDistanceRef.current,
+      Math.abs(deltaX),
+    );
 
     if (
       !pointerCapturedRef.current &&
@@ -385,7 +396,8 @@ export function HeroSection() {
 
         <p className="mb-8 max-w-xl text-base leading-7 text-muted-foreground">
           QRide is an NFC-based transport wallet for students, commuters, and
-          drivers. Load funds once and tap to pay across buses, shuttles, and taxis
+          drivers. Load funds once and tap to pay across buses, shuttles, and
+          taxis
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3">
@@ -397,9 +409,6 @@ export function HeroSection() {
           </Button>
           <Button asChild size="lg" variant="outline">
             <a href="/prototype">View prototype</a>
-          </Button>
-          <Button asChild size="lg" variant="ghost">
-            <a href="#how-it-works">See how it works</a>
           </Button>
         </div>
       </div>
