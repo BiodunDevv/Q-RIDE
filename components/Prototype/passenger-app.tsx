@@ -23,6 +23,7 @@ import {
   DRIVER_CODE,
   SERVICE_FEE,
   formatMoney,
+  getDayGreeting,
   getTime,
   isDriverCodeValid,
   numericValue,
@@ -58,6 +59,8 @@ type PassengerAppProps = {
   setDriver: Dispatch<SetStateAction<DriverState>>;
   showToast: (message: string, type?: ToastType) => void;
 };
+
+const quickRideAmounts = [100, 150, 200, 250, 300, 500];
 
 function Field({
   label,
@@ -222,7 +225,7 @@ export function PassengerApp({
           <div className="mb-4 flex items-start justify-between">
             <div>
               <p className="text-xs font-semibold tracking-[0.1em] text-neutral-500">
-                GOOD MORNING
+                {getDayGreeting()}
               </p>
               <h2 className="text-xl font-semibold text-neutral-950">
                 {user.name.split(" ")[0]}
@@ -357,13 +360,34 @@ export function PassengerApp({
         </Card>
 
         {nfcPhase === "idle" ? (
-          <Field
-            label="RIDE AMOUNT"
-            value={rideAmount}
-            prefix="₦"
-            onChange={(value) => setRideAmount(numericValue(value))}
-            placeholder="200"
-          />
+          <div className="space-y-3">
+            <div>
+              <p className="mb-2 text-xs font-semibold tracking-[0.08em] text-neutral-500">
+                QUICK FARE
+              </p>
+              <div className="grid grid-cols-3 gap-2">
+                {quickRideAmounts.map((amount) => (
+                  <Button
+                    key={amount}
+                    type="button"
+                    size="sm"
+                    variant={rideAmount === String(amount) ? "default" : "outline"}
+                    onClick={() => setRideAmount(String(amount))}
+                    className="h-8 px-2 text-xs"
+                  >
+                    {formatMoney(amount)}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <Field
+              label="CUSTOM RIDE AMOUNT"
+              value={rideAmount}
+              prefix="₦"
+              onChange={(value) => setRideAmount(numericValue(value))}
+              placeholder="200"
+            />
+          </div>
         ) : null}
 
         <div className="flex flex-col items-center gap-5 border border-neutral-200 bg-white p-6">

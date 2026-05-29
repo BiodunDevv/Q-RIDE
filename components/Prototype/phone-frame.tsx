@@ -34,7 +34,7 @@ export function PhoneFrame({
       <Iphone
         color={deviceColor}
         size={deviceSize}
-        className="mx-auto h-[min(790px,calc(100svh-7rem))] min-h-[560px] w-auto max-w-[calc(100vw-1rem)] drop-shadow-[0_18px_34px_rgba(0,0,0,0.2)]"
+        className="mx-auto h-[100svh] min-h-[560px] max-h-[790px] w-auto max-w-[calc(100vw-0.5rem)] drop-shadow-[0_18px_34px_rgba(0,0,0,0.2)]"
         screenClassName="bg-white shadow-[inset_0_0_18px_rgba(0,0,0,0.22)]"
       >
         {surface}
@@ -44,7 +44,7 @@ export function PhoneFrame({
 
   if (isMobile) {
     return (
-      <div className="mx-auto flex h-[calc(100svh-7rem)] min-h-[580px] w-full max-w-none flex-col overflow-hidden border border-neutral-200 bg-white prototype-phone-ui">
+      <div className="mx-auto flex h-[85svh] min-h-[580px] w-full max-w-none flex-col overflow-hidden border border-neutral-200 bg-white prototype-phone-ui">
         {surface}
       </div>
     );
@@ -54,7 +54,7 @@ export function PhoneFrame({
     <Iphone
       color={deviceColor}
       size={deviceSize}
-      className="mx-auto h-[min(890px,calc(100vh-7.5rem))] min-h-[640px] w-auto max-w-full drop-shadow-[0_24px_42px_rgba(0,0,0,0.22)]"
+      className="mx-auto h-[min(920px,calc(100vh-6.5rem))] min-h-[660px] w-auto max-w-full drop-shadow-[0_24px_42px_rgba(0,0,0,0.22)]"
       screenClassName="bg-white shadow-[inset_0_0_18px_rgba(0,0,0,0.22)]"
     >
       {surface}

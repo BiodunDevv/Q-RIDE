@@ -40,7 +40,7 @@ export type DriverState = {
 };
 
 export const INITIAL_USER: UserState = {
-  name: "Ademola Rasheed",
+  name: "Muhammed Abiodun",
   matric: "BU22CSC1005",
   balance: 4850,
   tier: 1,
@@ -89,6 +89,16 @@ export const getTime = () =>
     hour: "2-digit",
     minute: "2-digit",
   });
+
+export const getDayGreeting = () => {
+  const hour = new Date().getHours();
+
+  if (hour < 5) return "GOOD NIGHT";
+  if (hour < 12) return "GOOD MORNING";
+  if (hour < 17) return "GOOD AFTERNOON";
+  if (hour < 21) return "GOOD EVENING";
+  return "GOOD NIGHT";
+};
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => window.setTimeout(resolve, ms));
