@@ -390,7 +390,7 @@ export function HeroSection() {
         </div>
 
         <h1 className="mb-5 max-w-4xl text-4xl leading-tight font-semibold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-          <span>Tap, ride, and pay </span>
+          <span>Tap, pay and ride </span>
           <span className="text-primary">in seconds.</span>
         </h1>
 
